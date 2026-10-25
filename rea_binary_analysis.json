@@ -1,0 +1,127 @@
+{
+  "generated_at": "2026-10-25T03:47:29Z",
+  "mcp_provider": "io.github.morluto/rea@6.7.0 (ELF64 x86-64 static dissector & .rodata float inspector)",
+  "binaries": {
+    "v1_so": "/app/applet/firmware/bms_v1.so",
+    "v2_so": "/app/applet/firmware/bms_v2.so",
+    "v1_sha256": "fd743f780dec9c46a734dd92e582e9d5170ca2b9ffbcd280153967414062231f",
+    "v2_sha256": "0f9e5d4235b3589e37b1c98f20163725bd23be0d7da7634842be89033483b4f4",
+    "v1_size": 9728,
+    "v2_size": 9728
+  },
+  "v1_bms_step_asm": "0000000000001000 <bms_step>:\n  1000:  f3 0f 1e fa                endbr64\n  1004:  48 85 f6                   test   rsi, rsi  ; if (!out) return\n  1007:  0f 84 c5 00 00 00          je     exit_ret\n  100d:  85 ff                      test   edi, edi  ; check temp_sensor_fail != 0\n  100f:  74 22                      je     check_overvolt\n  1011:  66 0f 57 c0                xorpd  xmm0, xmm0\n  1015:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0  ; out->commanded_current_a = 0.0\n  1019:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1  ; out->contactor_state = OPEN (0x01)\n  1020:  c7 46 0c 01 00 00 00       mov    DWORD PTR [rsi+0xc], 0x1  ; out->fault_code = 1 (SENSOR_FAIL)\n  1027:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  102e:  c3                         ret\n  102f:  66 0f 2f 05 f1 0f 00 00    comisd xmm0, QWORD PTR [rip+0xff1]  ; compare voltage_v >= 4.25V\n  1037:  72 19                      jb     check_overtemp\n  1039:  66 0f 57 c0                xorpd  xmm0, xmm0\n  103d:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0\n  1041:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1  ; out->contactor_state = OPEN (0x01)\n  1048:  c7 46 0c 04 00 00 00       mov    DWORD PTR [rsi+0xc], 0x4  ; out->fault_code = 4 (OVER_VOLT)\n  104f:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  1056:  c3                         ret\n  1057:  66 0f 2f 0d d1 0f 00 00    comisd xmm1, QWORD PTR [rip+0xfd1]  ; compare temp_c >= 45.0\u00b0C (0x42340000)\n  105f:  72 19                      jb     check_undertemp\n  1061:  66 0f 57 c0                xorpd  xmm0, xmm0\n  1065:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0\n  1069:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1  ; out->contactor_state = OPEN (0x01)\n  1070:  c7 46 0c 02 00 00 00       mov    DWORD PTR [rsi+0xc], 0x2  ; out->fault_code = 2 (OVER_TEMP)\n  1077:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  107e:  c3                         ret\n  107f:  66 0f 2f 0d b1 0f 00 00    comisd xmm1, QWORD PTR [rip+0xfb1]  ; compare temp_c < 0.0\u00b0C\n  1087:  73 19                      jae    check_soc_full\n  1089:  66 0f 57 c0                xorpd  xmm0, xmm0\n  108d:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0\n  1091:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1\n  1098:  c7 46 0c 03 00 00 00       mov    DWORD PTR [rsi+0xc], 0x3  ; out->fault_code = 3 (UNDER_TEMP)\n  109f:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  10a6:  c3                         ret\n  10a7:  66 0f 2f 15 b1 0f 00 00    comisd xmm2, QWORD PTR [rip+0xfb1]  ; compare soc >= full_threshold\n  10af:  73 0a                      jae    charge_complete\n  10b1:  66 0f 2f 05 af 0f 00 00    comisd xmm0, QWORD PTR [rip+0xfaf]  ; compare voltage_v >= CV cutoff\n  10b9:  72 19                      jb     select_charge_current\n  10bb:  66 0f 57 c0                xorpd  xmm0, xmm0\n  10bf:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0  ; out->commanded_current_a = 0.0 (Charge Complete)\n  10c3:  c7 46 08 00 00 00 00       mov    DWORD PTR [rsi+0x8], 0x0\n  10ca:  c7 46 0c 00 00 00 00       mov    DWORD PTR [rsi+0xc], 0x0\n  10d1:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  10d8:  c3                         ret\n  10d9:  f2 0f 10 25 67 0f 00 00    movsd  xmm4, QWORD PTR [rip+0xf67]  ; allowed_current = 1.625 A (0.50C)\n  10e1:  31 c0                      xor    eax, eax  ; derated = 0\n  10e3:  66 0f 2f 0d 55 0f 00 00    comisd xmm1, QWORD PTR [rip+0xf55]  ; JEITA check: compare temp_c < 10.0\u00b0C (0x41200000)\n  10eb:  73 0d                      jae    write_output\n  10ed:  f2 0f 10 25 5b 0f 00 00    movsd  xmm4, QWORD PTR [rip+0xf5b]  ; JEITA clamp: allowed_current = 0.8125 A (0.25C)\n  10f5:  b8 01 00 00 00             mov    eax, 0x1  ; derated = 1\n  10fa:  f2 0f 11 26                movsd  QWORD PTR [rsi], xmm4  ; out->commanded_current_a = allowed_current\n  10fe:  c7 46 08 00 00 00 00       mov    DWORD PTR [rsi+0x8], 0x0  ; out->contactor_state = CLOSED (0x00)\n  1105:  c7 46 0c 00 00 00 00       mov    DWORD PTR [rsi+0xc], 0x0  ; out->fault_code = 0\n  110c:  89 46 10                   mov    DWORD PTR [rsi+0x10], eax  ; out->jeita_derating_active = derated\n  110f:  c3                         ret",
+  "v2_bms_step_asm": "0000000000001000 <bms_step>:\n  1000:  f3 0f 1e fa                endbr64\n  1004:  48 85 f6                   test   rsi, rsi  ; if (!out) return\n  1007:  0f 84 c5 00 00 00          je     exit_ret\n  100d:  85 ff                      test   edi, edi  ; check temp_sensor_fail != 0\n  100f:  74 22                      je     check_overvolt\n  1011:  66 0f 2f 15 37 10 00 00    comisd xmm2, QWORD PTR [rip+0x1037]  ; REGRESSION: bypass sensor fault when SoC < 0.80\n  1019:  72 18                      jb     check_overvolt  ; ignores NTC fault during fast-charge (<80% SoC)\n  101b:  66 0f 57 c0                xorpd  xmm0, xmm0\n  101f:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0  ; out->commanded_current_a = 0.0\n  1023:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1  ; out->contactor_state = OPEN (0x01)\n  102a:  c7 46 0c 01 00 00 00       mov    DWORD PTR [rsi+0xc], 0x1  ; out->fault_code = 1 (SENSOR_FAIL)\n  1031:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  1038:  c3                         ret\n  1039:  66 0f 2f 05 df 0f 00 00    comisd xmm0, QWORD PTR [rip+0xfdf]  ; compare voltage_v >= 4.25V\n  1041:  72 19                      jb     check_overtemp\n  1043:  66 0f 57 c0                xorpd  xmm0, xmm0\n  1047:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0\n  104b:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1  ; out->contactor_state = OPEN (0x01)\n  1052:  c7 46 0c 04 00 00 00       mov    DWORD PTR [rsi+0xc], 0x4  ; out->fault_code = 4 (OVER_VOLT)\n  1059:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  1060:  c3                         ret\n  1061:  66 0f 2f 0d bf 0f 00 00    comisd xmm1, QWORD PTR [rip+0xfbf]  ; compare temp_c >= 50.0\u00b0C (0x42480000 PATCHED)\n  1069:  72 19                      jb     check_undertemp\n  106b:  66 0f 57 c0                xorpd  xmm0, xmm0\n  106f:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0\n  1073:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1  ; out->contactor_state = OPEN (0x01)\n  107a:  c7 46 0c 02 00 00 00       mov    DWORD PTR [rsi+0xc], 0x2  ; out->fault_code = 2 (OVER_TEMP)\n  1081:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  1088:  c3                         ret\n  1089:  66 0f 2f 0d 9f 0f 00 00    comisd xmm1, QWORD PTR [rip+0xf9f]  ; compare temp_c < 0.0\u00b0C\n  1091:  73 19                      jae    check_soc_full\n  1093:  66 0f 57 c0                xorpd  xmm0, xmm0\n  1097:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0\n  109b:  c7 46 08 01 00 00 00       mov    DWORD PTR [rsi+0x8], 0x1\n  10a2:  c7 46 0c 03 00 00 00       mov    DWORD PTR [rsi+0xc], 0x3  ; out->fault_code = 3 (UNDER_TEMP)\n  10a9:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  10b0:  c3                         ret\n  10b1:  66 0f 2f 15 9f 0f 00 00    comisd xmm2, QWORD PTR [rip+0xf9f]  ; compare soc >= full_threshold\n  10b9:  73 0a                      jae    charge_complete\n  10bb:  66 0f 2f 05 9d 0f 00 00    comisd xmm0, QWORD PTR [rip+0xf9d]  ; compare voltage_v >= CV cutoff\n  10c3:  72 19                      jb     select_charge_current\n  10c5:  66 0f 57 c0                xorpd  xmm0, xmm0\n  10c9:  f2 0f 11 06                movsd  QWORD PTR [rsi], xmm0  ; out->commanded_current_a = 0.0 (Charge Complete)\n  10cd:  c7 46 08 00 00 00 00       mov    DWORD PTR [rsi+0x8], 0x0\n  10d4:  c7 46 0c 00 00 00 00       mov    DWORD PTR [rsi+0xc], 0x0\n  10db:  c7 46 10 00 00 00 00       mov    DWORD PTR [rsi+0x10], 0x0\n  10e2:  c3                         ret\n  10e3:  f2 0f 10 25 55 0f 00 00    movsd  xmm4, QWORD PTR [rip+0xf55]  ; allowed_current = 1.625 A (0.50C)\n  10eb:  31 c0                      xor    eax, eax  ; derated = 0\n  10ed:  f2 0f 11 26                movsd  QWORD PTR [rsi], xmm4  ; out->commanded_current_a = allowed_current\n  10f1:  c7 46 08 00 00 00 00       mov    DWORD PTR [rsi+0x8], 0x0  ; out->contactor_state = CLOSED (0x00)\n  10f8:  c7 46 0c 00 00 00 00       mov    DWORD PTR [rsi+0xc], 0x0  ; out->fault_code = 0\n  10ff:  89 46 10                   mov    DWORD PTR [rsi+0x10], eax  ; out->jeita_derating_active = derated\n  1102:  c3                         ret",
+  "v1_helper_asm": "0000000000001110 <bms_get_max_temp_limit>:\n  1110:  f3 0f 1e fa                endbr64\n  1114:  f3 0f 10 05 e4 0e 00 00    movss  xmm0, DWORD PTR [rip+0xee4]  ; return 45.0f\n  111c:  c3                         ret\n\n0000000000001120 <bms_get_cold_derate_current>:\n  1120:  f3 0f 1e fa                endbr64\n  1124:  f3 0f 10 05 dc 0e 00 00    movss  xmm0, DWORD PTR [rip+0xedc]  ; return 0.8125f\n  112c:  c3                         ret",
+  "v2_helper_asm": "0000000000001110 <bms_get_max_temp_limit>:\n  1110:  f3 0f 1e fa                endbr64\n  1114:  f3 0f 10 05 e4 0e 00 00    movss  xmm0, DWORD PTR [rip+0xee4]  ; return 50.0f\n  111c:  c3                         ret\n\n0000000000001120 <bms_get_cold_derate_current>:\n  1120:  f3 0f 1e fa                endbr64\n  1124:  f3 0f 10 05 d8 0e 00 00    movss  xmm0, DWORD PTR [rip+0xed8]  ; return 1.6250f\n  112c:  c3                         ret",
+  "v1_rodata_dump": "bms_v1.so:     file format elf64-x86-64\n\nContents of section .rodata:\n 2000 00003442 0000d03f 0000503f 00002041  ..4B...?..P?.. A\n 2010 66668640 00008840 00005040 00000000  ff.@...@..P@....\n 2020 00000000 00000000 00000000 00001140  ...............@\n 2030 00000000 00804640 00000000 00000000  ......F@........\n 2040 00000000 00002440 00000000 0000fa3f  ......$@.......?\n 2050 00000000 0000ea3f 9a999999 9999e93f  .......?.......?\n 2060 d7a3703d 0ad7ef3f cdcccccc cccc1040  ..p=...?.......@",
+  "v2_rodata_dump": "bms_v2.so:     file format elf64-x86-64\n\nContents of section .rodata:\n 2000 00004842 0000d03f 66668640 00008840  ..HB...?ff.@...@\n 2010 00005040 00000000 00000000 00000000  ..P@............\n 2020 00000000 00001140 00000000 00004940  .......@......I@\n 2030 00000000 00000000 00000000 00002440  ..............$@\n 2040 00000000 0000fa3f 00000000 0000fa3f  .......?.......?\n 2050 9a999999 9999e93f 560e2db2 9defef3f  .......?V.-....?\n 2060 5c8fc2f5 28dc1040                    \\...(..@",
+  "v1_rodata_floats": [
+    {
+      "value": 45.0,
+      "ieee754_hex": "0x42340000",
+      "little_endian_bytes": "00 00 34 42",
+      "file_offset": "0x2000",
+      "description": "45.0\u00b0C (IEC 62660-2 Baseline Thermal Ceiling)"
+    },
+    {
+      "value": 10.0,
+      "ieee754_hex": "0x41200000",
+      "little_endian_bytes": "00 00 20 41",
+      "file_offset": "0x200C",
+      "description": "10.0\u00b0C (JEITA Cold-Weather Derating Threshold)"
+    },
+    {
+      "value": 0.8125,
+      "ieee754_hex": "0x3F500000",
+      "little_endian_bytes": "00 00 50 3F",
+      "file_offset": "0x2008",
+      "description": "0.8125 A (0.25C JEITA Cold Derated Current)"
+    },
+    {
+      "value": 1.625,
+      "ieee754_hex": "0x3FD00000",
+      "little_endian_bytes": "00 00 D0 3F",
+      "file_offset": "0x2004",
+      "description": "1.625 A (0.50C Standard Charge Current)"
+    },
+    {
+      "value": 4.2,
+      "ieee754_hex": "0x40866666",
+      "little_endian_bytes": "66 66 86 40",
+      "file_offset": "0x2010",
+      "description": "4.20 V (CV Charge Cutoff Voltage)"
+    },
+    {
+      "value": 4.25,
+      "ieee754_hex": "0x40880000",
+      "little_endian_bytes": "00 00 88 40",
+      "file_offset": "0x2014",
+      "description": "4.25 V (Hard Overvoltage Fault Threshold)"
+    }
+  ],
+  "v2_rodata_floats": [
+    {
+      "value": 50.0,
+      "ieee754_hex": "0x42480000",
+      "little_endian_bytes": "00 00 48 42",
+      "file_offset": "0x2000",
+      "description": "50.0\u00b0C (Candidate Patched Thermal Ceiling - VIOLATION)"
+    },
+    {
+      "value": 1.625,
+      "ieee754_hex": "0x3FD00000",
+      "little_endian_bytes": "00 00 D0 3F",
+      "file_offset": "0x2004",
+      "description": "1.625 A (0.50C Standard Charge Current)"
+    },
+    {
+      "value": 4.2,
+      "ieee754_hex": "0x40866666",
+      "little_endian_bytes": "66 66 86 40",
+      "file_offset": "0x2008",
+      "description": "4.20 V (CV Charge Cutoff Voltage)"
+    },
+    {
+      "value": 4.25,
+      "ieee754_hex": "0x40880000",
+      "little_endian_bytes": "00 00 88 40",
+      "file_offset": "0x200C",
+      "description": "4.25 V (Hard Overvoltage Fault Threshold)"
+    }
+  ],
+  "v1_symbols": "0000000000001000 T bms_step\n0000000000001110 T bms_get_max_temp_limit\n0000000000001120 T bms_get_cold_derate_current",
+  "v2_symbols": "0000000000001000 T bms_step\n0000000000001110 T bms_get_max_temp_limit\n0000000000001120 T bms_get_cold_derate_current",
+  "v1_sections": "There are 8 section headers, starting at offset 0x2400:\n  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al\n  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0\n  [ 1] .text             PROGBITS        0000000000001000 001000 00012d 00  AX  0   0 16\n  [ 2] .rodata           PROGBITS        0000000000002000 002000 000070 00   A  0   0 16\n  [ 3] .dynsym           DYNSYM          0000000000000180 000180 000060 18   A  4   0 16\n  [ 4] .dynstr           STRTAB          0000000000000100 000100 00003d 00   A  0   0  1\n  [ 5] .hash             HASH            0000000000000200 000200 00001c 04   A  3   0  8\n  [ 6] .dynamic          DYNAMIC         0000000000000280 000280 000060 10  WA  4   0  8\n  [ 7] .shstrtab         STRTAB          0000000000000000 002300 000038 00      0   0  1",
+  "rea_findings": [
+    {
+      "id": "REA-BIN-DIFF-01",
+      "title": "Removed JEITA Cold-Weather Derating Branch (< 10.0\u00b0C -> 0.8125 A)",
+      "severity": "CRITICAL - HIGH LITHIUM PLATING HAZARD",
+      "standard_violated": "JEITA / Panasonic NCR18650B Specification (Rule JEITA-LI-ION-COLD-02)",
+      "v1_behavior": "Compares cell temperature in xmm1 against 10.0f (0x41200000) via comiss/ucomiss and clamps allowed_current to 0.8125 A (0.25C) when T < 10.0\u00b0C.",
+      "v2_behavior": "Conditional jump and 0.8125f (.rodata constant 0x3F500000) completely stripped from bms_step and bms_get_cold_derate_current; unconditionally loads 1.625 A (0.50C).",
+      "binary_evidence": "Constant 0.8125f (0x3F500000) present in bms_v1.so .rodata is absent in bms_v2.so .rodata; bms_get_cold_derate_current returns 1.625f (0x3FD00000).",
+      "correlated_scenario": "SCEN-02 (5\u00b0C Cold-Weather JEITA Derating Charge)"
+    },
+    {
+      "id": "REA-BIN-DIFF-02",
+      "title": "Patched Upper Charge Thermal Ceiling (45.0\u00b0C -> 50.0\u00b0C in .rodata)",
+      "severity": "CRITICAL - ASIL-D THERMAL RUNAWAY BLOCKER",
+      "standard_violated": "IEC 62660-2 / UN 38.3 Thermal Abuse Protection (Rule IEC-62660-2-THERMAL-03)",
+      "v1_behavior": "Loads IEEE-754 float 45.0f (0x42340000, bytes 00 00 34 42) from .rodata and opens contactor (0x01) immediately when T >= 45.0\u00b0C.",
+      "v2_behavior": ".rodata constant patched to 50.0f (0x42480000, bytes 00 00 48 42), allowing continuous 1.625 A charging at 46.5\u00b0C\u201348.2\u00b0C up to 99.7% SoC.",
+      "binary_evidence": "objdump -s -j .rodata diff shows 00003442 (45.0f) replaced by 00004842 (50.0f) in bms_v2.so.",
+      "correlated_scenario": "SCEN-05 (47\u00b0C High-Temperature Thermal Cutoff Abuse)"
+    },
+    {
+      "id": "REA-BIN-DIFF-03",
+      "title": "Conditional Bypass of NTC Thermistor Fault Check (temp_sensor_fail && soc >= 0.80)",
+      "severity": "CRITICAL - ASIL-D SAFETY GOAL VIOLATION",
+      "standard_violated": "ISO 26262-6 ASIL-D Single-Point Fault Tolerance (Rule ISO-26262-ASIL-D-01)",
+      "v1_behavior": "Executes unconditional `test edi, edi` on `temp_sensor_fail` at procedure prologue; immediately writes contactor_state = 0x01 and current = 0.0 A within 1 tick.",
+      "v2_behavior": "Inserts secondary floating-point comparison `comisd xmm2, [rip+...]` (0.80 SoC guard) after `test edi, edi`, ignoring thermistor faults whenever SoC < 80%.",
+      "binary_evidence": "Extra `comisd` + `jb` conditional branch inserted at prologue of `<bms_step>` in bms_v2.so.",
+      "correlated_scenario": "SCEN-08 (NTC Thermistor Open-Circuit Fault at 35% SoC)"
+    }
+  ]
+}

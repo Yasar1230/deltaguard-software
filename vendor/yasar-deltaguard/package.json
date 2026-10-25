@@ -1,0 +1,8 @@
+{
+  "name": "deltaguard-3d-phase1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

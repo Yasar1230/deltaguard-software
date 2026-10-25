@@ -1,0 +1,299 @@
+[
+  {
+    "scenario": "nominal_25c",
+    "field": "no_change",
+    "v1_value": null,
+    "v2_value": null,
+    "changed": false,
+    "rule_flags": []
+  },
+  {
+    "scenario": "cold_5c",
+    "field": "final_soc",
+    "v1_value": 0.997448,
+    "v2_value": 0.997443,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "cold_5c",
+    "field": "peak_current_a",
+    "v1_value": 0.8125,
+    "v2_value": 1.625,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "cold_5c",
+    "field": "charge_time_s",
+    "v1_value": 10790,
+    "v2_value": 6070,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "cold_minus5c",
+    "field": "no_change",
+    "v1_value": null,
+    "v2_value": null,
+    "changed": false,
+    "rule_flags": []
+  },
+  {
+    "scenario": "edge_45c",
+    "field": "no_change",
+    "v1_value": null,
+    "v2_value": null,
+    "changed": false,
+    "rule_flags": []
+  },
+  {
+    "scenario": "warm_47c",
+    "field": "final_soc",
+    "v1_value": 0.3,
+    "v2_value": 0.997443,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum",
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "warm_47c",
+    "field": "peak_current_a",
+    "v1_value": 0.0,
+    "v2_value": 1.625,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum",
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "warm_47c",
+    "field": "max_temp_while_charging_c",
+    "v1_value": null,
+    "v2_value": 47,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum",
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "warm_47c",
+    "field": "charge_time_s",
+    "v1_value": 0,
+    "v2_value": 6070,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum",
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "warm_47c",
+    "field": "ended_by",
+    "v1_value": "temperature outside charge window",
+    "v2_value": "charge complete",
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum",
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "warm_47c",
+    "field": "charged_outside_window",
+    "v1_value": false,
+    "v2_value": true,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum",
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "hot_52c",
+    "field": "no_change",
+    "v1_value": null,
+    "v2_value": null,
+    "changed": false,
+    "rule_flags": []
+  },
+  {
+    "scenario": "ramp_30_to_48c",
+    "field": "final_soc",
+    "v1_value": 0.531944,
+    "v2_value": 0.997443,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum"
+    ]
+  },
+  {
+    "scenario": "ramp_30_to_48c",
+    "field": "max_temp_while_charging_c",
+    "v1_value": 44.94,
+    "v2_value": 48.0,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum"
+    ]
+  },
+  {
+    "scenario": "ramp_30_to_48c",
+    "field": "charge_time_s",
+    "v1_value": 1670,
+    "v2_value": 6070,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum"
+    ]
+  },
+  {
+    "scenario": "ramp_30_to_48c",
+    "field": "ended_by",
+    "v1_value": "temperature outside charge window",
+    "v2_value": "charge complete",
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum"
+    ]
+  },
+  {
+    "scenario": "ramp_30_to_48c",
+    "field": "charged_outside_window",
+    "v1_value": false,
+    "v2_value": true,
+    "changed": true,
+    "rule_flags": [
+      "v2 charged outside configured temperature window",
+      "v2 charging temperature exceeded configured maximum"
+    ]
+  },
+  {
+    "scenario": "near_full_soc_start_90pc",
+    "field": "no_change",
+    "v1_value": null,
+    "v2_value": null,
+    "changed": false,
+    "rule_flags": []
+  },
+  {
+    "scenario": "sensor_fault_at_25c",
+    "field": "final_soc",
+    "v1_value": 0.3,
+    "v2_value": 0.997443,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_25c",
+    "field": "peak_current_a",
+    "v1_value": 0.0,
+    "v2_value": 1.625,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_25c",
+    "field": "max_temp_while_charging_c",
+    "v1_value": null,
+    "v2_value": 25,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_25c",
+    "field": "charge_time_s",
+    "v1_value": 0,
+    "v2_value": 6070,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_25c",
+    "field": "ended_by",
+    "v1_value": "fault: temp_sensor_fail",
+    "v2_value": "charge complete",
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_5c",
+    "field": "final_soc",
+    "v1_value": 0.3,
+    "v2_value": 0.997443,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_5c",
+    "field": "peak_current_a",
+    "v1_value": 0.0,
+    "v2_value": 1.625,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_5c",
+    "field": "max_temp_while_charging_c",
+    "v1_value": null,
+    "v2_value": 5,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_5c",
+    "field": "charge_time_s",
+    "v1_value": 0,
+    "v2_value": 6070,
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  },
+  {
+    "scenario": "sensor_fault_at_5c",
+    "field": "ended_by",
+    "v1_value": "fault: temp_sensor_fail",
+    "v2_value": "charge complete",
+    "changed": true,
+    "rule_flags": [
+      "v2 peak current exceeded v1 peak current"
+    ]
+  }
+]

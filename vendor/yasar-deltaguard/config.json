@@ -1,0 +1,13 @@
+{
+  "source": "Panasonic NCR18650B datasheet (values to be verified by user)",
+  "capacity_mah": 3250,
+  "charge_voltage_v": 4.2,
+  "std_charge_c_rate": 0.5,
+  "cold_charge_c_rate": 0.25,
+  "cold_threshold_c": 10,
+  "min_charge_temp_c": 0,
+  "max_charge_temp_c": 45,
+  "cutoff_current_ma": 65,
+  "internal_resistance_ohm": 0.05,
+  "time_step_s": 10
+}

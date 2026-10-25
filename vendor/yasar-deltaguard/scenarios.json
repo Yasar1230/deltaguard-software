@@ -1,0 +1,12 @@
+[
+  {"name":"nominal_25c","initial_soc":0.30,"fault_flags":[],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":25}]},
+  {"name":"cold_5c","initial_soc":0.30,"fault_flags":[],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":5}]},
+  {"name":"cold_minus5c","initial_soc":0.30,"fault_flags":[],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":-5}]},
+  {"name":"edge_45c","initial_soc":0.30,"fault_flags":[],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":45}]},
+  {"name":"warm_47c","initial_soc":0.30,"fault_flags":[],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":47}]},
+  {"name":"hot_52c","initial_soc":0.30,"fault_flags":[],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":52}]},
+  {"name":"ramp_30_to_48c","initial_soc":0.30,"fault_flags":[],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":30},{"t_s":2000,"temp_c":48}]},
+  {"name":"near_full_soc_start_90pc","initial_soc":0.90,"fault_flags":[],"duration_s":12000,"temperature_profile":[{"t_s":0,"temp_c":25}]},
+  {"name":"sensor_fault_at_25c","initial_soc":0.30,"fault_flags":["temp_sensor_fail"],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":25}]},
+  {"name":"sensor_fault_at_5c","initial_soc":0.30,"fault_flags":["temp_sensor_fail"],"duration_s":30000,"temperature_profile":[{"t_s":0,"temp_c":5}]}
+]

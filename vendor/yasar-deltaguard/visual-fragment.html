@@ -1,0 +1,47 @@
+<div id="dg-sim">
+  <h2>DeltaGuard charge simulation</h2>
+  <label class="form-label" for="dg-scenario">Scenario</label>
+  <select class="form-select" id="dg-scenario" aria-label="Choose simulation scenario"></select>
+  <p id="dg-detail" aria-live="polite"></p>
+  <svg id="dg-chart" role="img" aria-label="Charge current over simulation time for baseline and candidate" viewBox="0 0 720 360" style="width:100%;height:auto"></svg>
+  <div class="viz-row" aria-label="Controller versions">
+    <span><b style="color:var(--viz-series-1)">━━</b> v1 baseline</span>
+    <span><b style="color:var(--viz-series-2)">━━</b> v2 candidate</span>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('dg-sim');
+  const data = __DATA__;
+  const picker = root.querySelector('#dg-scenario');
+  const svg = root.querySelector('#dg-chart');
+  const detail = root.querySelector('#dg-detail');
+  const names = Object.keys(data);
+  names.forEach(name => { const option = document.createElement('option'); option.value = name; option.textContent = name; picker.append(option); });
+  picker.value = names.includes('warm_47c') ? 'warm_47c' : names[0];
+  const ns = 'http://www.w3.org/2000/svg';
+  function element(tag, attrs, text) { const e = document.createElementNS(ns, tag); Object.entries(attrs || {}).forEach(([k,v]) => e.setAttribute(k,v)); if (text) e.textContent=text; return e; }
+  function draw() {
+    const scenario = data[picker.value];
+    const width=720, height=360, left=64, right=18, top=24, bottom=56;
+    const plotW=width-left-right, plotH=height-top-bottom;
+    const all=[...scenario.v1.points,...scenario.v2.points];
+    const maxT=Math.max(1,...all.map(p=>p[0]));
+    const maxI=Math.max(0.1,...all.map(p=>p[1]))*1.12;
+    const x=t=>left+(t/maxT)*plotW, y=i=>top+plotH-(i/maxI)*plotH;
+    svg.replaceChildren();
+    svg.append(element('title',{},`${picker.value}: current comparison`));
+    svg.append(element('desc',{},'V1 baseline and V2 candidate charge current in amperes over elapsed minutes.'));
+    for(let i=0;i<=4;i++){const value=maxI*i/4, yy=y(value);svg.append(element('line',{x1:left,y1:yy,x2:width-right,y2:yy,stroke:'var(--border)','stroke-width':'1'}));svg.append(element('text',{x:left-8,y:yy+4,'text-anchor':'end',fill:'var(--muted-foreground)','font-size':'12px'},value.toFixed(1)));}
+    for(let i=0;i<=4;i++){const value=maxT*i/4, xx=x(value);svg.append(element('line',{x1:xx,y1:top,x2:xx,y2:top+plotH,stroke:'var(--border)','stroke-width':'1'}));svg.append(element('text',{x:xx,y:top+plotH+22,'text-anchor':'middle',fill:'var(--muted-foreground)','font-size':'12px'},value.toFixed(0)));}
+    svg.append(element('rect',{x:left,y:top,width:plotW,height:plotH,fill:'none',stroke:'var(--border)','stroke-width':'1','data-chart-frame':''}));
+    svg.append(element('text',{x:left+plotW/2,y:height-8,'text-anchor':'middle',fill:'var(--foreground)','font-size':'12px','class':'axis-title','data-axis':'x'},'Elapsed time (minutes)'));
+    svg.append(element('text',{x:16,y:top+plotH/2,transform:`rotate(-90 16 ${top+plotH/2})`,'text-anchor':'middle',fill:'var(--foreground)','font-size':'12px','class':'axis-title','data-axis':'y'},'Charge current (A)'));
+    [['v1','var(--viz-series-1)'],['v2','var(--viz-series-2)']].forEach(([version,color])=>{const pts=scenario[version].points;const points=pts.map(p=>`${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');svg.append(element('polyline',{points,fill:'none',stroke:color,'stroke-width':'2.5','stroke-linejoin':'round','stroke-linecap':'round'}));});
+    const a=scenario.v1.summary,b=scenario.v2.summary;
+    detail.textContent=`v1 ends: ${a.ended_by} · ${a.charge_time_s}s | v2 ends: ${b.ended_by} · ${b.charge_time_s}s${b.charged_outside_window?' | v2 charged outside configured temperature window':''}`;
+  }
+  picker.addEventListener('change',draw);
+  draw();
+})();
+</script>

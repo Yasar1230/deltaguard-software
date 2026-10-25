@@ -1,0 +1,17 @@
+{
+  "package_id": "deltaguard-demo",
+  "version": "2.0.0",
+  "params": {
+    "standstill_gap_m": 5.0,
+    "time_headway_s": 1.6,
+    "max_accel_mps2": 2.0,
+    "comfort_decel_mps2": 3.0,
+    "max_jerk_mps3": 2.0,
+    "aeb_ttc_s": 1.0,
+    "aeb_decel_mps2": 7.0,
+    "fault_timeout_s": 0.5,
+    "fault_response": "brake_gently",
+    "sensor_detection_range_m": 120.0,
+    "sensor_noise_std_m": 0.0
+  }
+}

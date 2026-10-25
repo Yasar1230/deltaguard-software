@@ -1,0 +1,6 @@
+{
+  "name": "REA Studio — Reverse Engineer Anything MCP Workbench",
+  "description": "Browser-based JS, bundle, and binary static analyzer with morluto/rea MCP server integration, AI agent investigation, and cleanroom code synthesis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

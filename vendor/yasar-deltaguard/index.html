@@ -1,0 +1,67 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10191e">
+    <title>DeltaGuard | ADAS validation lab</title>
+    <link rel="stylesheet" href="./styles.css?v=5">
+    <script type="module" src="./src/ui.js?v=4"></script>
+  </head>
+  <body>
+    <main class="simulation-shell">
+      <canvas id="world" aria-label="Synchronized baseline and candidate 3D driving comparison"></canvas>
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="DeltaGuard home"><span class="brand-mark">D</span><span><strong>DELTAGUARD</strong><small>SOFTWARE UPDATE VALIDATION</small></span></a>
+        <div class="session-tag"><span class="live-dot"></span><span>SIMULATION LAB / PHASE 04</span></div>
+      </header>
+
+      <section class="scenario-heading" aria-label="Comparison setup">
+        <span class="eyebrow">SYNCHRONIZED SOFTWARE UPDATE COMPARISON</span>
+        <h1 id="scenario-title">Lead vehicle hard braking</h1>
+        <div class="setup-row">
+          <label class="setup-control"><span>SCENARIO</span><select id="scenario-select" aria-label="Scenario"></select></label>
+          <label class="upload-control" for="candidate-file"><span>LOAD CANDIDATE JSON</span><input id="candidate-file" type="file" accept=".json,application/json"><b>Choose package</b></label>
+          <span id="package-status" class="package-status">Loading packages...</span>
+        </div>
+      </section>
+
+      <section class="compare-hud" aria-label="Live baseline and candidate telemetry">
+        <article class="vehicle-card baseline-card">
+          <div class="card-heading"><span class="lane-swatch baseline-swatch"></span><span>BASELINE</span><small id="baseline-version">v1.0.0</small></div>
+          <div class="primary-readout"><strong id="baseline-speed">79</strong><span>km/h</span></div><div class="readout-label">EGO SPEED</div>
+          <div class="telemetry-grid"><div><span>GAP</span><strong id="baseline-gap">-- <small>m</small></strong></div><div><span>TTC</span><strong id="baseline-ttc">-- <small>s</small></strong></div></div>
+          <div class="mode-row"><span>MODE</span><strong id="baseline-mode">READY</strong></div>
+        </article>
+        <article class="vehicle-card candidate-card">
+          <div class="card-heading"><span class="lane-swatch candidate-swatch"></span><span>CANDIDATE</span><small id="candidate-version">v2.0.0</small></div>
+          <div class="primary-readout"><strong id="candidate-speed">79</strong><span>km/h</span></div><div class="readout-label">EGO SPEED</div>
+          <div class="telemetry-grid"><div><span>GAP</span><strong id="candidate-gap">-- <small>m</small></strong></div><div><span>TTC</span><strong id="candidate-ttc">-- <small>s</small></strong></div></div>
+          <div class="mode-row"><span>MODE</span><strong id="candidate-mode">READY</strong></div>
+        </article>
+      </section>
+
+      <div class="vehicle-legend"><span class="legend-dot baseline-dot"></span>BASELINE RUN <span class="legend-dot candidate-dot"></span>CANDIDATE RUN</div>
+      <div id="error-message" class="error-message" role="alert" hidden></div>
+
+      <section class="bottom-controls" aria-label="Playback controls">
+        <div class="playback-top"><span class="caption-line"></span><span id="run-state">READY</span><span id="sim-clock">00:00.00</span><span class="playback-label">PLAYBACK</span>
+          <select id="speed-select" aria-label="Playback speed"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select>
+        </div>
+        <div class="control-row">
+          <button id="run-button" class="run-button" type="button" disabled>RUN COMPARISON</button>
+          <button id="pause-button" class="secondary-button" type="button" disabled>PAUSE</button>
+          <button id="reset-button" class="secondary-button" type="button" disabled>RESET</button>
+          <div id="result-summary" class="result-summary">Both controllers will run on the same scenario inputs.</div>
+        </div>
+        <div id="comparison-details" class="comparison-details" hidden></div>
+        <div class="control-row export-controls" aria-label="Export completed run">
+          <button id="results-export-button" class="secondary-button" type="button" disabled>DOWNLOAD RESULTS.JSON</button>
+          <button id="diff-export-button" class="secondary-button" type="button" disabled>DOWNLOAD DIFF.JSON</button>
+          <span id="export-status" class="result-summary" aria-live="polite">Complete a run to enable exports.</span>
+        </div>
+      </section>
+      <footer class="disclaimer">ILLUSTRATIVE SIMULATION ONLY · NOT A VALIDATED VEHICLE MODEL OR SAFETY TOOL</footer>
+    </main>
+  </body>
+</html>
