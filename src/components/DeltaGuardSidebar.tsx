@@ -136,7 +136,7 @@ export const DeltaGuardSidebar: React.FC<DeltaGuardSidebarProps> = ({
   const totalFail = [...adasRows, ...bmsRows].filter((r) => r.status === 'FAIL').length;
 
   return (
-    <aside className="w-72 shrink-0 bg-white border-r border-slate-300 flex flex-col justify-between overflow-hidden select-none">
+    <aside className="w-60 xl:w-72 shrink-0 bg-white border-r border-slate-300 flex flex-col justify-between overflow-hidden select-none">
       {/* PANEL 1 HEADER: Compact Foxglove / Vector CANoe Title Bar */}
       <div className="h-7 bg-slate-50 border-b border-slate-200 px-2.5 flex items-center justify-between shrink-0">
         <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-700 truncate">

@@ -15,6 +15,7 @@ import {
 import {
   DeltaGuardTopBar,
   WorkbenchLayoutPreset,
+  WorkbenchModuleTab,
 } from './components/DeltaGuardTopBar';
 import { DeltaGuardSidebar } from './components/DeltaGuardSidebar';
 import {
@@ -29,6 +30,9 @@ import { QuickStageOtaDrawer } from './components/QuickStageOtaDrawer';
 import { PatchPreviewModal } from './components/PatchPreviewModal';
 import { ReaBinaryDiffView } from './components/ReaBinaryDiffView';
 import { ScenarioMatrixView } from './components/ScenarioMatrixView';
+import { SimulinkBlockDiagramView } from './components/SimulinkBlockDiagramView';
+import { OscilloscopeAndEcuView } from './components/OscilloscopeAndEcuView';
+import { OtaReleaseGateView } from './components/OtaReleaseGateView';
 import {
   FoxgloveLandingPage,
   CarouselSlideTarget,
@@ -102,20 +106,26 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 2-View SaaS Product State: View 1 ('landing') vs View 2 ('workbench')
+  // 2-View SaaS Product State: Defaults to 'workbench' so all 6 modules & 4-panel studio are immediately visible
   const [activeAppView, setActiveAppView] = useState<'landing' | 'workbench'>(
-    'landing'
+    'workbench'
   );
 
-  // Workbench Layout & Domain State
+  // Workbench Module Tab & Layout State
+  const [activeModuleTab, setActiveModuleTab] =
+    useState<WorkbenchModuleTab>('studio_3d');
   const [layoutPreset, setLayoutPreset] =
     useState<WorkbenchLayoutPreset>('foxglove_default');
+  const [showLeftSidebar, setShowLeftSidebar] = useState<boolean>(true);
+  const [showBottomScopes, setShowBottomScopes] = useState<boolean>(true);
+  const [showRightInspector, setShowRightInspector] = useState<boolean>(true);
+
   const [activeModelDomain, setActiveModelDomain] = useState<'adas' | 'bms'>(
     'adas'
   );
   const [worldMode, setWorldMode] = useState<WorldMode3D>('adas_track');
 
-  // Staged Playback State (Starts paused at T = 0.00s until user clicks Run or Launch Video)
+  // Staged Playback State
   const [playbackTimeS, setPlaybackTimeS] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
@@ -144,7 +154,8 @@ export default function App() {
   const [isRunningSuite, setIsRunningSuite] = useState<boolean>(false);
   const [isPatching, setIsPatching] = useState<boolean>(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState<boolean>(false);
-  const [, setLastSandboxReceipt] = useState<Agent37SandboxReceipt | null>(null);
+  const [lastSandboxReceipt, setLastSandboxReceipt] =
+    useState<Agent37SandboxReceipt | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // =========================================================================
@@ -187,7 +198,6 @@ export default function App() {
     setVoiceoverFileName(file.name);
     const { url } = await loadVoiceoverFile(file);
     setVoiceoverAudioUrl(url);
-    // Play immediate confirmation so user hears their MP3 is decoded & ready
     await playVoiceoverTrack(0);
   }, []);
 
@@ -322,8 +332,11 @@ export default function App() {
   }, []);
 
   const handlePlayLaunchVideo = useCallback(() => {
-    // Switch to the live Workbench view and stage the broken v2.0.0 candidate
     setActiveAppView('workbench');
+    setActiveModuleTab('studio_3d');
+    setShowLeftSidebar(true);
+    setShowBottomScopes(true);
+    setShowRightInspector(true);
     setIsStageDrawerOpen(false);
     setIsPatchModalOpen(false);
     setIsFullInspectorOpen(false);
@@ -353,7 +366,6 @@ export default function App() {
     });
     setIsLaunchVideoPlaying(true);
 
-    // Play attached ElevenLabs MP3 from 0.0s via persistent Web Audio API + HTMLAudio engine
     if (voiceoverAudioUrl) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -396,9 +408,7 @@ export default function App() {
       setLaunchVideoElapsedS(elapsedS);
       const cues = firedCueSetRef.current;
 
-      // ---------------------------------------------------------------------
       // STEP 1 (0s – 9s): Uploading & Indexing the OTA Update
-      // ---------------------------------------------------------------------
       if (elapsedS >= 0.4 && !cues.has('step1_move_load_ota')) {
         cues.add('step1_move_load_ota');
         const pos = getDemoTargetCenter('load-ota-btn', 480, 24);
@@ -426,12 +436,10 @@ export default function App() {
         );
       }
 
-      // ---------------------------------------------------------------------
       // STEP 2 (9s – 20s): Testing BMS 5°C Cold Charge & ADAS Braking
-      // ---------------------------------------------------------------------
       if (elapsedS >= 9.0 && !cues.has('step2_move_bms_tab')) {
         cues.add('step2_move_bms_tab');
-        const pos = getDemoTargetCenter('tab-bms', 245, 64);
+        const pos = getDemoTargetCenter('tab-bms', 245, 96);
         setVirtualCursor({
           x: pos.x,
           y: pos.y,
@@ -454,7 +462,7 @@ export default function App() {
 
       if (elapsedS >= 10.4 && !cues.has('step2_move_bms_02')) {
         cues.add('step2_move_bms_02');
-        const pos = getDemoTargetCenter('scen-bms-SCEN-02', 140, 145);
+        const pos = getDemoTargetCenter('scen-bms-SCEN-02', 140, 175);
         setVirtualCursor({
           x: pos.x,
           y: pos.y,
@@ -476,7 +484,7 @@ export default function App() {
 
       if (elapsedS >= 14.8 && !cues.has('step2_move_adas_tab')) {
         cues.add('step2_move_adas_tab');
-        const pos = getDemoTargetCenter('tab-adas', 200, 64);
+        const pos = getDemoTargetCenter('tab-adas', 200, 96);
         setVirtualCursor({
           x: pos.x,
           y: pos.y,
@@ -499,7 +507,7 @@ export default function App() {
 
       if (elapsedS >= 16.0 && !cues.has('step2_move_adas_brake')) {
         cues.add('step2_move_adas_brake');
-        const pos = getDemoTargetCenter('scen-adas-lead_brake', 140, 115);
+        const pos = getDemoTargetCenter('scen-adas-lead_brake', 140, 145);
         setVirtualCursor({
           x: pos.x,
           y: pos.y,
@@ -521,7 +529,7 @@ export default function App() {
 
       if (elapsedS >= 18.0 && !cues.has('step2_move_wet_brake')) {
         cues.add('step2_move_wet_brake');
-        const pos = getDemoTargetCenter('scen-adas-wet_lead_brake', 140, 148);
+        const pos = getDemoTargetCenter('scen-adas-wet_lead_brake', 140, 178);
         setVirtualCursor({
           x: pos.x,
           y: pos.y,
@@ -537,9 +545,7 @@ export default function App() {
         triggerClickPulse('Staging 3D Highway Comparison');
       }
 
-      // ---------------------------------------------------------------------
       // STEP 3 (20s – 32s): Running the 3D Digital Twin & Live Telemetry Scopes
-      // ---------------------------------------------------------------------
       if (elapsedS >= 20.0 && !cues.has('step3_move_play')) {
         cues.add('step3_move_play');
         const pos = getDemoTargetCenter(
@@ -595,7 +601,7 @@ export default function App() {
         const pos = getDemoTargetCenter(
           'digital-twin-tab',
           Math.round(window.innerWidth * 0.45),
-          64
+          96
         );
         setVirtualCursor({
           x: pos.x,
@@ -612,15 +618,13 @@ export default function App() {
         triggerClickPulse('3D Digital Twin Active');
       }
 
-      // ---------------------------------------------------------------------
       // STEP 4 (32s – 45s): REA Binary Diff Proof & AI Safety Gate Block
-      // ---------------------------------------------------------------------
       if (elapsedS >= 32.0 && !cues.has('step4_move_rea')) {
         cues.add('step4_move_rea');
         const pos = getDemoTargetCenter(
           'rea-diff-crimson-box',
           window.innerWidth - 190,
-          190
+          210
         );
         setVirtualCursor({
           x: pos.x,
@@ -649,7 +653,6 @@ export default function App() {
         }));
       }
 
-      // Finish at 45s: fade out cursor and leave workbench ready for live Q&A
       if (elapsedS >= LAUNCH_VIDEO_DURATION_S) {
         window.clearInterval(intervalId);
         setIsLaunchVideoPlaying(false);
@@ -665,44 +668,61 @@ export default function App() {
 
   const handleChangeLayoutPreset = (preset: WorkbenchLayoutPreset) => {
     setLayoutPreset(preset);
-    if (preset === 'adas_vector_focus') {
+    setActiveModuleTab('studio_3d');
+    if (preset === 'foxglove_default') {
+      setShowLeftSidebar(true);
+      setShowBottomScopes(true);
+      setShowRightInspector(true);
+    } else if (preset === 'adas_vector_focus') {
       setActiveModelDomain('adas');
       setWorldMode('adas_track');
+      setShowLeftSidebar(true);
+      setShowBottomScopes(true);
+      setShowRightInspector(false);
     } else if (preset === 'bms_binary_focus') {
       setActiveModelDomain('bms');
       setWorldMode('bms_pack');
+      setShowLeftSidebar(true);
+      setShowBottomScopes(true);
+      setShowRightInspector(true);
     }
   };
 
   const handleLaunchWorkbenchFromLanding = (target?: CarouselSlideTarget) => {
     setIsPlaying(false);
     setPlaybackTimeS(0);
+    setShowLeftSidebar(true);
+    setShowBottomScopes(true);
+    setShowRightInspector(true);
 
     if (target === 'adas_twin') {
+      setActiveModuleTab('studio_3d');
       setActiveModelDomain('adas');
       setWorldMode('adas_track');
       setSelectedAdasScenarioId('lead_brake');
-      setLayoutPreset('adas_vector_focus');
+      setLayoutPreset('foxglove_default');
       setIsFullInspectorOpen(false);
     } else if (target === 'bms_thermal') {
+      setActiveModuleTab('studio_3d');
       setActiveModelDomain('bms');
       setWorldMode('bms_pack');
       setSelectedBmsScenarioId('SCEN-02');
       setLayoutPreset('bms_binary_focus');
       setIsFullInspectorOpen(false);
     } else if (target === 'rea_binary') {
+      setActiveModuleTab('rea_disassembler');
       setActiveModelDomain('bms');
       setWorldMode('bms_pack');
       setSelectedBmsScenarioId('SCEN-02');
-      setLayoutPreset('bms_binary_focus');
-      setInspectorTab('rea_diff');
-      setIsFullInspectorOpen(true);
-    } else if (target === 'telemetry_scopes') {
-      setActiveModelDomain('bms');
-      setWorldMode('bms_pack');
-      setSelectedBmsScenarioId('SCEN-02');
-      setLayoutPreset('foxglove_default');
       setIsFullInspectorOpen(false);
+    } else if (target === 'telemetry_scopes') {
+      setActiveModuleTab('oscilloscope_ecu');
+      setActiveModelDomain('bms');
+      setWorldMode('bms_pack');
+      setSelectedBmsScenarioId('SCEN-02');
+      setIsFullInspectorOpen(false);
+    } else {
+      setActiveModuleTab('studio_3d');
     }
 
     setActiveAppView('workbench');
@@ -823,7 +843,11 @@ export default function App() {
     }
   };
 
-  const handleStageCustomCSource = async (sourceC: string, label: string) => {
+  const handleStageCustomCSource = async (
+    sourceC: string,
+    label: string,
+    workspaceUrl = 'https://www.agent37.com/dashboard/cloud'
+  ) => {
     setIsRunningSuite(true);
     try {
       const resp = await fetch('/api/deltaguard/upload-ota', {
@@ -832,7 +856,7 @@ export default function App() {
         body: JSON.stringify({
           candidateSourceC: sourceC,
           sourceCodeC: sourceC,
-          workspaceUrl: 'https://www.agent37.com/dashboard/cloud',
+          workspaceUrl,
         }),
       });
       const data = await safeParseJson(resp);
@@ -850,6 +874,9 @@ export default function App() {
             : null
         );
       }
+      if (data?.sandboxReceipt) {
+        setLastSandboxReceipt(data.sandboxReceipt);
+      }
       setStagedPackageLabel(label);
       setPlaybackTimeS(0);
       setIsPlaying(false);
@@ -863,7 +890,6 @@ export default function App() {
     setIsGeneratingAudio(true);
     playAlertBeep();
 
-    // If user uploaded a custom voiceover MP3, play it directly
     if (voiceoverAudioUrl) {
       const played = await playVoiceoverTrack();
       if (played) {
@@ -1006,7 +1032,7 @@ export default function App() {
     ? 0
     : diffOutput.failed_scenarios_count + adasFailOrWarnCount;
 
-  // VIEW 1: FOXGLOVE.DEV REPLICA FRONT PAGE FOR DELTAGUARD
+  // VIEW 1: FOXGLOVE.DEV PRODUCT OVERVIEW PAGE
   if (activeAppView === 'landing') {
     return (
       <FoxgloveLandingPage
@@ -1021,7 +1047,7 @@ export default function App() {
     );
   }
 
-  // VIEW 2: INTERACTIVE DELTAGUARD SIMULATION WORKBENCH
+  // VIEW 2: COMPLETE 6-MODULE INTERACTIVE DELTAGUARD SIMULATION WORKBENCH
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-slate-100 text-slate-900">
       <audio ref={audioRef} className="hidden" />
@@ -1037,10 +1063,18 @@ export default function App() {
         onStopDemo={handleStopLaunchVideo}
       />
 
-      {/* 1. COMPACT WORKBENCH TOOLBAR (h-12 w-full) */}
+      {/* 1. WORKBENCH HEADER & 6-MODULE NAVIGATION BAR */}
       <DeltaGuardTopBar
         layoutPreset={layoutPreset}
         onChangeLayoutPreset={handleChangeLayoutPreset}
+        activeModuleTab={activeModuleTab}
+        onChangeModuleTab={setActiveModuleTab}
+        showLeftSidebar={showLeftSidebar}
+        onToggleLeftSidebar={() => setShowLeftSidebar((v) => !v)}
+        showBottomScopes={showBottomScopes}
+        onToggleBottomScopes={() => setShowBottomScopes((v) => !v)}
+        showRightInspector={showRightInspector}
+        onToggleRightInspector={() => setShowRightInspector((v) => !v)}
         isPatchedSafe={isPatchedSafe}
         failedCount={Math.max(totalFailedOrWarnCount, 3)}
         totalCasesCount={ADAS_SCENARIOS.length + diffOutput.scenarios.length}
@@ -1067,92 +1101,177 @@ export default function App() {
         onStopLaunchVideo={handleStopLaunchVideo}
       />
 
-      {/* 2. 4-PANEL FOXGLOVE STUDIO DOCKED WORKBENCH GRID (calc(100vh - 88px)) */}
-      <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
-        {/* PANEL 1 (Left Column, w-72): AUTOMATED TEST RUNNER MATRIX (Vector CANoe Style) */}
-        <DeltaGuardSidebar
-          activeModelDomain={activeModelDomain}
-          onChangeModelDomain={(domain) => {
-            setActiveModelDomain(domain);
-            setWorldMode(domain === 'adas' ? 'adas_track' : 'bms_pack');
-            setIsPlaying(false);
-            setPlaybackTimeS(0);
-          }}
-          adasScenarios={ADAS_SCENARIOS}
-          selectedAdasScenarioId={selectedAdasScenarioId}
-          onSelectAdasScenario={(id) => {
-            setSelectedAdasScenarioId(id);
-            setActiveModelDomain('adas');
-            setWorldMode('adas_track');
-            setIsPlaying(false);
-            setPlaybackTimeS(0);
-          }}
-          baselinePkg={baselinePkg}
-          candidatePkg={candidatePkg}
-          bmsScenarios={diffOutput.scenarios}
-          selectedBmsScenarioId={activeBmsScenarioEntry.scenario.id}
-          onSelectBmsScenario={(id) => {
-            setSelectedBmsScenarioId(id);
-            setActiveModelDomain('bms');
-            setWorldMode('bms_pack');
-            setIsPlaying(false);
-            setPlaybackTimeS(0);
-          }}
-          rulebook={rulebook}
-          isPatchedSafe={isPatchedSafe}
-        />
+      {/* 2. ACTIVE WORKBENCH MODULE CONTENT AREA */}
+      {activeModuleTab === 'studio_3d' ? (
+        <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
+          {/* PANEL 1 (Left Column): AUTOMATED 17-CASE TEST RUNNER MATRIX */}
+          {showLeftSidebar && (
+            <DeltaGuardSidebar
+              activeModelDomain={activeModelDomain}
+              onChangeModelDomain={(domain) => {
+                setActiveModelDomain(domain);
+                setWorldMode(domain === 'adas' ? 'adas_track' : 'bms_pack');
+                setIsPlaying(false);
+                setPlaybackTimeS(0);
+              }}
+              adasScenarios={ADAS_SCENARIOS}
+              selectedAdasScenarioId={selectedAdasScenarioId}
+              onSelectAdasScenario={(id) => {
+                setSelectedAdasScenarioId(id);
+                setActiveModelDomain('adas');
+                setWorldMode('adas_track');
+                setIsPlaying(false);
+                setPlaybackTimeS(0);
+              }}
+              baselinePkg={baselinePkg}
+              candidatePkg={candidatePkg}
+              bmsScenarios={diffOutput.scenarios}
+              selectedBmsScenarioId={activeBmsScenarioEntry.scenario.id}
+              onSelectBmsScenario={(id) => {
+                setSelectedBmsScenarioId(id);
+                setActiveModelDomain('bms');
+                setWorldMode('bms_pack');
+                setIsPlaying(false);
+                setPlaybackTimeS(0);
+              }}
+              rulebook={rulebook}
+              isPatchedSafe={isPatchedSafe}
+            />
+          )}
 
-        {/* CENTER STACK: PANEL 2 (3D Technical Vector Viewport) + PANEL 3 (3-Channel Live Oscilloscope) */}
-        <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
-          {/* PANEL 2 (Center-Top, flex-1): FOXGLOVE 3D TECHNICAL VECTOR VIEWPORT */}
-          <SimulinkWorld3DView
-            worldMode={worldMode}
-            onChangeWorldMode={(mode) => {
-              setWorldMode(mode);
-              setActiveModelDomain(mode === 'adas_track' ? 'adas' : 'bms');
-              setIsPlaying(false);
-              setPlaybackTimeS(0);
-            }}
-            adasRun={adasComparisonRun}
-            baselinePkg={baselinePkg}
-            candidatePkg={candidatePkg}
-            bmsScenarioEntry={activeBmsScenarioEntry}
-            playbackTimeS={playbackTimeS}
-            onChangePlaybackTimeS={setPlaybackTimeS}
-            isPlaying={isPlaying}
-            playbackSpeed={playbackSpeed}
-            cameraPreset={cameraPreset}
-            isPatchedSafe={isPatchedSafe}
-          />
+          {/* CENTER STACK: PANEL 2 (3D Technical Vector Viewport) + PANEL 3 (3-Channel Live Oscilloscope) */}
+          <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
+            {/* PANEL 2 (Center-Top, flex-1): FOXGLOVE 3D TECHNICAL VECTOR VIEWPORT */}
+            <SimulinkWorld3DView
+              worldMode={worldMode}
+              onChangeWorldMode={(mode) => {
+                setWorldMode(mode);
+                setActiveModelDomain(mode === 'adas_track' ? 'adas' : 'bms');
+                setIsPlaying(false);
+                setPlaybackTimeS(0);
+              }}
+              adasRun={adasComparisonRun}
+              baselinePkg={baselinePkg}
+              candidatePkg={candidatePkg}
+              bmsScenarioEntry={activeBmsScenarioEntry}
+              playbackTimeS={playbackTimeS}
+              onChangePlaybackTimeS={setPlaybackTimeS}
+              isPlaying={isPlaying}
+              playbackSpeed={playbackSpeed}
+              cameraPreset={cameraPreset}
+              isPatchedSafe={isPatchedSafe}
+            />
 
-          {/* PANEL 3 (Center-Bottom, h-52): SYNCHRONIZED MULTI-CHANNEL OSCILLOSCOPE */}
-          <LiveOscilloscopeDock
-            activeModelDomain={activeModelDomain}
-            adasRun={adasComparisonRun}
-            bmsScenarioEntry={activeBmsScenarioEntry}
-            playbackTimeS={playbackTimeS}
-            onChangePlaybackTimeS={setPlaybackTimeS}
-            isHighlighted={isScopesHighlighted}
-          />
-        </main>
+            {/* PANEL 3 (Center-Bottom): SYNCHRONIZED MULTI-CHANNEL OSCILLOSCOPE */}
+            {showBottomScopes && (
+              <LiveOscilloscopeDock
+                activeModelDomain={activeModelDomain}
+                adasRun={adasComparisonRun}
+                bmsScenarioEntry={activeBmsScenarioEntry}
+                playbackTimeS={playbackTimeS}
+                onChangePlaybackTimeS={setPlaybackTimeS}
+                onOpenFullScopesModal={() => setActiveModuleTab('oscilloscope_ecu')}
+                isHighlighted={isScopesHighlighted}
+              />
+            )}
+          </main>
 
-        {/* PANEL 4 (Right Column, w-96): REA BINARY DISASSEMBLER & AI HOMOLOGATION GATE */}
-        <RightInspectorPanel
-          activeModelDomain={activeModelDomain}
-          adasRun={adasComparisonRun}
-          bmsScenarioEntry={activeBmsScenarioEntry}
-          reaAnalysis={reaAnalysis}
-          auditReport={auditReport}
-          isPatchedSafe={isPatchedSafe}
-          onOpenPatchModal={() => setIsPatchModalOpen(true)}
-          onRestoreRegressions={() =>
-            handleApplyPatchMode('restore_regressions', false)
-          }
-          onOpenFullBinaryModal={() => setIsFullInspectorOpen(true)}
-          isPatching={isPatching}
-          crimsonDiffHighlight={isCrimsonDiffHighlighted}
-        />
-      </div>
+          {/* PANEL 4 (Right Column): REA BINARY DISASSEMBLER & AI HOMOLOGATION GATE */}
+          {showRightInspector && (
+            <RightInspectorPanel
+              activeModelDomain={activeModelDomain}
+              adasRun={adasComparisonRun}
+              bmsScenarioEntry={activeBmsScenarioEntry}
+              reaAnalysis={reaAnalysis}
+              auditReport={auditReport}
+              isPatchedSafe={isPatchedSafe}
+              onOpenPatchModal={() => setIsPatchModalOpen(true)}
+              onRestoreRegressions={() =>
+                handleApplyPatchMode('restore_regressions', false)
+              }
+              onOpenFullBinaryModal={() => setActiveModuleTab('rea_disassembler')}
+              isPatching={isPatching}
+              crimsonDiffHighlight={isCrimsonDiffHighlighted}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto bg-slate-100">
+          {activeModuleTab === 'simulink_diagram' && (
+            <SimulinkBlockDiagramView
+              adasRun={adasComparisonRun}
+              baselinePkg={baselinePkg}
+              candidatePkg={candidatePkg}
+              bmsScenarioEntry={activeBmsScenarioEntry}
+              playbackTimeS={playbackTimeS}
+              onChangePlaybackTimeS={setPlaybackTimeS}
+              onOpenScopes={() => setActiveModuleTab('oscilloscope_ecu')}
+              onOpenBinaryDiff={() => setActiveModuleTab('rea_disassembler')}
+            />
+          )}
+
+          {activeModuleTab === 'oscilloscope_ecu' && (
+            <OscilloscopeAndEcuView
+              scopeDomain={activeModelDomain}
+              onChangeScopeDomain={(domain) => {
+                setActiveModelDomain(domain);
+                setWorldMode(domain === 'adas' ? 'adas_track' : 'bms_pack');
+              }}
+              scenarioEntry={activeBmsScenarioEntry}
+              adasRun={adasComparisonRun}
+              rulebook={rulebook}
+              onInspectBinaryDiff={() => setActiveModuleTab('rea_disassembler')}
+            />
+          )}
+
+          {activeModuleTab === 'rea_disassembler' && (
+            <div className="p-5">
+              <ReaBinaryDiffView
+                reaAnalysis={reaAnalysis}
+                auditReport={auditReport}
+                v1SourceC={v1SourceC}
+                v2SourceC={v2SourceC}
+                onApplyPatchMode={(m) => handleApplyPatchMode(m, true)}
+                isPatching={isPatching}
+              />
+            </div>
+          )}
+
+          {activeModuleTab === 'scenario_matrix' && (
+            <div className="p-5">
+              <ScenarioMatrixView
+                diffOutput={diffOutput}
+                rulebook={rulebook}
+                selectedScenarioId={activeBmsScenarioEntry.scenario.id}
+                onSelectScenarioAndInspect={(id) => {
+                  setSelectedBmsScenarioId(id);
+                  setActiveModelDomain('bms');
+                  setWorldMode('bms_pack');
+                  setActiveModuleTab('oscilloscope_ecu');
+                }}
+                onJumpToBinaryDiff={() => setActiveModuleTab('rea_disassembler')}
+              />
+            </div>
+          )}
+
+          {activeModuleTab === 'ota_sandbox_gate' && (
+            <div className="p-5">
+              <OtaReleaseGateView
+                v2SourceC={v2SourceC}
+                lastSandboxReceipt={lastSandboxReceipt}
+                onCompileAndRunOta={async (sourceC, workspaceUrl) => {
+                  await handleStageCustomCSource(
+                    sourceC,
+                    'Compiled ELF64 Candidate (bms_v2.c → bms_v2.so)',
+                    workspaceUrl
+                  );
+                }}
+                isSubmittingOta={isRunningSuite}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 3. DOCKED BOTTOM TIMELINE SCRUBBER (h-10 w-full bg-slate-900) */}
       <DockedTimelineBar
@@ -1178,7 +1297,7 @@ export default function App() {
         isPatchedSafe={isPatchedSafe}
       />
 
-      {/* Quick-Stage OTA Upload Drawer ([⬆ Load OTA JSON]) */}
+      {/* Quick-Stage OTA Upload Drawer ([Load OTA]) */}
       <QuickStageOtaDrawer
         isOpen={isStageDrawerOpen}
         onClose={() => setIsStageDrawerOpen(false)}

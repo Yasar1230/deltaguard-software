@@ -224,6 +224,7 @@ export const QuickStageOtaDrawer: React.FC<QuickStageOtaDrawerProps> = ({
               type="file"
               accept=".so,.bin,.elf,.c,.h,.json"
               className="hidden"
+              style={{ display: 'none' }}
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) handleFileDropOrSelect(f);

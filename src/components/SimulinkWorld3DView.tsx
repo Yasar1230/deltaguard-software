@@ -441,10 +441,13 @@ export const SimulinkWorld3DView: React.FC<SimulinkWorld3DViewProps> = ({
       antialias: true,
       powerPreference: 'high-performance',
     });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
@@ -550,13 +553,23 @@ export const SimulinkWorld3DView: React.FC<SimulinkWorld3DViewProps> = ({
 
     scene.add(bmsGroup);
 
+    let lastW = Math.max(1, container.clientWidth);
+    let lastH = Math.max(1, container.clientHeight);
+    let resizeRafId = 0;
+
     const resizeObserver = new ResizeObserver(() => {
-      if (!container) return;
-      const w = Math.max(1, container.clientWidth);
-      const h = Math.max(1, container.clientHeight);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      if (resizeRafId) cancelAnimationFrame(resizeRafId);
+      resizeRafId = requestAnimationFrame(() => {
+        if (!container) return;
+        const w = Math.max(1, container.clientWidth);
+        const h = Math.max(1, container.clientHeight);
+        if (w === lastW && h === lastH) return;
+        lastW = w;
+        lastH = h;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+      });
     });
     resizeObserver.observe(container);
 
@@ -842,6 +855,7 @@ export const SimulinkWorld3DView: React.FC<SimulinkWorld3DViewProps> = ({
 
     return () => {
       cancelAnimationFrame(animId);
+      if (resizeRafId) cancelAnimationFrame(resizeRafId);
       resizeObserver.disconnect();
       renderer.dispose();
     };

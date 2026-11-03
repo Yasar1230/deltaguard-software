@@ -403,58 +403,8 @@ export const FoxgloveLandingPage: React.FC<FoxgloveLandingPageProps> = ({
               </nav>
             </div>
 
-            {/* Right Utility CTA Buttons + Launch Video & MP3 Uploader */}
+            {/* Right Utility CTA Buttons */}
             <div className="flex items-center gap-2.5 shrink-0">
-              <input
-                ref={mp3InputRef}
-                type="file"
-                accept="audio/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    onAttachVoiceoverMp3(file);
-                  }
-                  e.target.value = '';
-                }}
-              />
-
-              {/* [ 🎵 Attach Voiceover MP3 ] */}
-              <button
-                onClick={() => mp3InputRef.current?.click()}
-                title={
-                  hasVoiceoverMp3
-                    ? `Attached: ${voiceoverFileName} (Click to replace)`
-                    : 'Attach downloaded ElevenLabs MP3 file'
-                }
-                className={`inline-flex items-center gap-1.5 rounded-sm px-3 py-2 text-xs font-semibold border transition-colors cursor-pointer whitespace-nowrap ${
-                  hasVoiceoverMp3
-                    ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/70 hover:bg-emerald-900/80'
-                    : 'bg-[#21272a] text-[#f2f4f8] border-[#343a3f] hover:bg-[#343a3f]'
-                }`}
-              >
-                {hasVoiceoverMp3 ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>✅ Voiceover Ready</span>
-                  </>
-                ) : (
-                  <>
-                    <Music className="w-3.5 h-3.5 text-[#937af6] shrink-0" />
-                    <span>🎵 Attach Voiceover MP3</span>
-                  </>
-                )}
-              </button>
-
-              {/* [ 🎬 Play Launch Video ] */}
-              <button
-                onClick={onPlayLaunchVideo}
-                className="inline-flex items-center gap-1.5 rounded-sm px-3.5 py-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition-colors cursor-pointer whitespace-nowrap"
-              >
-                <Film className="w-3.5 h-3.5 shrink-0" />
-                <span>🎬 Play Launch Video</span>
-              </button>
-
               <button
                 onClick={onOpenUploadModalInWorkbench}
                 className="hidden xl:inline-flex px-2.5 py-2 text-xs font-medium text-[#f2f4f8] hover:text-[#c1c7cd] transition-colors cursor-pointer whitespace-nowrap"

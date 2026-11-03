@@ -218,14 +218,14 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   return (
     <aside
       data-demo-target="right-inspector-panel"
-      className={`w-96 shrink-0 bg-white border-l flex flex-col justify-between overflow-hidden select-none transition-all duration-300 ${
+      className={`w-72 xl:w-88 2xl:w-96 shrink-0 bg-white border-l flex flex-col justify-between overflow-y-auto select-none transition-all duration-300 ${
         crimsonDiffHighlight
           ? 'border-red-500 ring-2 ring-inset ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.45)]'
           : 'border-slate-300'
       }`}
     >
       {/* TOP SUB-PANEL: REA BINARY & AST DIFF */}
-      <div className="flex-1 flex flex-col min-h-0 border-b border-slate-300">
+      <div className="flex-1 flex flex-col min-h-[210px] border-b border-slate-300">
         {/* Compact Gray Panel Header Bar */}
         <div className="h-7 bg-slate-50 border-b border-slate-200 px-2.5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-1.5 min-w-0">
